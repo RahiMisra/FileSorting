@@ -4,12 +4,12 @@ from openai import OpenAI
 client = OpenAI()
 
 def file_sorter(file_name, folders):
-    prompt = f"A file named '{file_name}' needs to be sorted into one of the following folders: {', '.join(folders)}. Determine the appropriate folder for this file. You can also suggest a new folder if none of the listed folders are suitable, or mark the file as 'None'. Return only the folder name."
+    prompt = f"A file named '{file_name}' needs to be classified. Determine the appropriate classification for this file based on the file type. The classifications should be general based on what the file type does. Return only the folder name and nothing else."
 
     response = client.chat.completions.create(
         model="gpt-3.5-turbo-16k-0613",
         messages = [
-            {"role": "system", "content": "You are a file sorter that takes in a file and a list of folders and responds with either the folder the file should be placed into or a new folder that would be made for the file to be placed into. Responses are limited to the name of the folder or 'None' and you must not provide any other reasoning or information."},
+            {"role": "system", "content": "You are a file classifier that takes in a file and responds with a classification based on the type of file or name. Responses are limited to the name of a folder. You must not provide any other reasoning or information."},
             {"role": "user", "content": prompt}
         ]
     )
