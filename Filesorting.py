@@ -196,11 +196,10 @@ def sort_file(file_path, folders):
                 chosen_parent_folder = selected_parent_folder
         print("real chosen parent folder:" + chosen_parent_folder)
 
-        if chosen_parent_folder == "Miscellaneous":
-            new_folder_path = os.path.join(directory, chosen_parent_folder)
-            if not os.path.exists(new_folder_path):
-                os.makedirs(new_folder_path)
-                print(f"Folder '{chosen_parent_folder}' created on the desktop.")  
+        new_folder_path = os.path.join(directory, chosen_parent_folder)
+        if not os.path.exists(new_folder_path):
+            os.makedirs(new_folder_path)
+            print(f"Folder '{chosen_parent_folder}' created on the desktop.")  
 
         folders = get_folders(directory)
         print("Folders found in the directory:")
@@ -250,11 +249,10 @@ def sort_file(file_path, folders):
             else:
                 chosen_sub_folder = selected_sub_folder
         
-        if chosen_sub_folder == "Miscellaneous":
-            new_sub_folder_path = os.path.join(new_folder_path, chosen_parent_folder)
-            if not os.path.exists(new_sub_folder_path):
-                os.makedirs(new_sub_folder_path)
-                print(f"Folder '{chosen_sub_folder}' created in '{chosen_parent_folder}'.")  
+        new_sub_folder_path = os.path.join(new_folder_path, chosen_parent_folder)
+        if not os.path.exists(new_sub_folder_path):
+            os.makedirs(new_sub_folder_path)
+            print(f"Folder '{chosen_sub_folder}' created in '{chosen_parent_folder}'.")  
 
         new_sub_folder_path = os.path.join(new_folder_path, chosen_sub_folder)
         new_file_path = move_file(file_path, new_sub_folder_path)
