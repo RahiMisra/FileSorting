@@ -131,133 +131,160 @@ def check_new_sub_folder(parent_folder, subfolders, suggested_sub_folder):
 
     return keep_new_folder
 
+# moves the file into a path
 def move_file(file_path, folder_path):
     # ensure the new subfolder exists
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
-    # get the filename from the file path
     file_name = os.path.basename(file_path)
-
-    # Construct the new file path in the new subfolder
     new_file_path = os.path.join(folder_path, file_name)
-
-    # Move the file to the new location
     os.rename(file_path, new_file_path)
 
-    # Return the new file path
     return new_file_path
 
 def sort_file(file_path, folders):
-    # gets the folders on the desktop
+    # gets the desktop directory
     directory = os.path.expanduser("~/Desktop")
+    folders = get_folders(directory)
+
+    # appends miscellaneous to folders to always have an option
     folders.append("Miscellaneous")
+    # print the folders to check what is there
     print("Folders found in the directory:")
     for folder in folders:
         print(folder)
+
     # check if the file exists
     if os.path.exists(file_path):
         file_name = os.path.basename(file_path)
-        # ask to pick a folder from list
+
+        # ask the ai to pick a folder from list
         selected_parent_folder = select_parent_folder(file_name, folders)
         print("selected parent folder:" +selected_parent_folder)
-        # ask for a new folder
+
+        # ask the ai to suggest a new folder
         suggested_parent_folder = suggest_parent_folder(file_name)
         print("suggested parent folder:" + suggested_parent_folder)
-        # ask to pick a folder from list including the new one
+
+        # ask the ai to pick a folder from list including the new one
         new_folders = folders
         new_folders.append(suggested_parent_folder)
         new_selected_parent_folder = select_parent_folder(file_name, new_folders)
         print("new selected parent folder:" + new_selected_parent_folder)
     
+        # checks to make sure the best option chosen by the ai is chosen
+        # the original selected folder is correct
         if selected_parent_folder == new_selected_parent_folder:
-            # the selected folder is correct
             chosen_parent_folder = selected_parent_folder
+
+        # the last selected folder is correct
         elif selected_parent_folder == "Miscellaneous" and not new_selected_parent_folder == "Miscellaneous":
-            # the new selected folder is correct
             chosen_parent_folder = new_selected_parent_folder
+
+        # the suggested folder is correct because the rest are marked miscellaneous
         elif selected_parent_folder == "Miscellaneous" and new_selected_parent_folder == "Miscellaneous" and not suggested_parent_folder == "Miscellaneous":
-            # the suggested folder is correct
             chosen_parent_folder = suggested_parent_folder
+        
+        # if they are all miscellaneous then it will be marked miscellaneous
         else:
             chosen_parent_folder = selected_parent_folder
         print("chosen parent folder:" + chosen_parent_folder)
 
+        # check to see if a new folder would need to be made
         if chosen_parent_folder == suggested_parent_folder and not chosen_parent_folder == selected_parent_folder:
-            # check if the new folder should be kept
+            # ask the ai if the new folder should be kept
             keep_new_folder = check_new_parent_folder(folders, suggested_parent_folder)
             print(keep_new_folder)
             if keep_new_folder == "Keep":
+                # if folder should be kept make new folder in directory
                 new_folder_path = os.path.join(directory, suggested_parent_folder)
                 if not os.path.exists(new_folder_path):
                     os.makedirs(new_folder_path)
                     print(f"Folder '{suggested_parent_folder}' created on the desktop.")    
             else:
+                # folder should not be kept so we switch to the other selection
                 chosen_parent_folder = selected_parent_folder
         print("real chosen parent folder:" + chosen_parent_folder)
 
+        # make sure the new parent folder path is made and the folder is created
         new_folder_path = os.path.join(directory, chosen_parent_folder)
         if not os.path.exists(new_folder_path):
             os.makedirs(new_folder_path)
             print(f"Folder '{chosen_parent_folder}' created on the desktop.")  
 
+        # print the folders to check what is there
         folders = get_folders(directory)
         print("Folders found in the directory:")
         for folder in folders:
             print(folder)
 
-        new_folder_path = os.path.join(directory, chosen_parent_folder)
+        # get the subfolders from the chosen patent folder
         subfolders = get_folders(new_folder_path)
+        # appends miscellaneous to folders to always have an option
         subfolders.append("Miscellaneous")
+        # print the folders to check what is there
         print("Folders found in the parent folder:")
         for folder in subfolders:
             print(folder)
 
-        # ask to pick a subfolder from list
+        # ask the ai to pick a subfolder from list
         selected_sub_folder = select_sub_folder(file_name, chosen_parent_folder, subfolders)
         print("selected sub folder:" + selected_sub_folder)
-        # ask for a new folder
+
+        # ask the ai to create a new folder
         suggested_sub_folder = suggest_sub_folder(file_name, chosen_parent_folder)
         print("suggested sub folder:" + suggested_sub_folder)
-        # ask to pick a folder from list including the new one
+
+        # ask the ai to pick a folder from list including the new one
         subfolders.append(suggested_sub_folder)
         select_between_sub_folder = select_between_two_sub_folders(file_name, chosen_parent_folder, selected_sub_folder, suggested_sub_folder)
         print("chosen sub folder:" + select_between_sub_folder)
 
+        # checks to make sure the best option chosen by the ai is chosen
+        # the new selected subfolder is correct
         if not select_between_sub_folder == "Miscellaneous":
-            # the new selected folder is correct
             chosen_sub_folder = select_between_sub_folder
+
+        # the original selected subfolder is correct
         elif select_between_sub_folder == "Miscellaneous" and not selected_sub_folder == "Miscellaneous":
             chosen_sub_folder = selected_sub_folder
-            # the suggested folder is correct
+        
+        # the suggested subfolder is correct
         elif selected_sub_folder == "Miscellaneous" and select_between_sub_folder == "Miscellaneous" and not suggested_sub_folder == "Miscellaneous":
-            # the suggested folder is correct
             chosen_sub_folder = suggested_sub_folder
+
+        # the subfolder is miscellaneous
         else:
             chosen_sub_folder = select_between_sub_folder
         print("real chosen sub folder:" + chosen_sub_folder)
 
+        # check if the new folder needs to be made
         if chosen_sub_folder == suggested_sub_folder and not chosen_sub_folder == selected_sub_folder:
-            # check if the new folder should be kept
+            # ask the ai if making this subfolder is beneficial
             keep_new_folder = check_new_sub_folder(chosen_parent_folder, subfolders, suggested_sub_folder)
             print(keep_new_folder)
             if keep_new_folder == "Keep":
+                # if we keep the subfolder we create it
                 new_sub_folder_path = os.path.join(new_folder_path, suggested_sub_folder)
                 if not os.path.exists(new_sub_folder_path):
                     os.makedirs(new_sub_folder_path)
                     print(f"Folder '{suggested_sub_folder}' created in '{chosen_parent_folder}'.")
             else:
+                # subfolder should not be kept so we switch to the other selection
                 chosen_sub_folder = selected_sub_folder
         
-        new_sub_folder_path = os.path.join(new_folder_path, chosen_parent_folder)
+        # make sure the subfolder path exists and the folder has been created
+        new_sub_folder_path = os.path.join(new_folder_path, chosen_sub_folder)
         if not os.path.exists(new_sub_folder_path):
             os.makedirs(new_sub_folder_path)
-            print(f"Folder '{chosen_sub_folder}' created in '{chosen_parent_folder}'.")  
+            print(f"Folder '{chosen_sub_folder}' created in '{chosen_sub_folder}'.")  
 
-        new_sub_folder_path = os.path.join(new_folder_path, chosen_sub_folder)
+        # move the file and get the file path
         new_file_path = move_file(file_path, new_sub_folder_path)
         print(f"File '{file_name}' moved to folder '{chosen_sub_folder}'")
 
+        #return the new file path
         return new_file_path
 
     else:
