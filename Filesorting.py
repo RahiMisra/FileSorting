@@ -145,16 +145,16 @@ def move_file(file_path, folder_path):
     # Move the file to the new location
     os.rename(file_path, new_file_path)
 
-def main():
+    # Return the new file path
+    return new_file_path
+
+def sort_file(file_path, folders):
     # gets the folders on the desktop
     directory = os.path.expanduser("~/Desktop")
-    folders = get_folders(directory)
     folders.append("Miscellaneous")
     print("Folders found in the directory:")
     for folder in folders:
         print(folder)
-
-    file_path = input("Enter the path to the file: ")
     # check if the file exists
     if os.path.exists(file_path):
         file_name = os.path.basename(file_path)
@@ -173,10 +173,10 @@ def main():
         if selected_parent_folder == new_selected_parent_folder:
             # the selected folder is correct
             chosen_parent_folder = selected_parent_folder
-        elif selected_parent_folder == "Miscellanious" and not new_selected_parent_folder == "Miscellanious":
+        elif selected_parent_folder == "Miscellaneous" and not new_selected_parent_folder == "Miscellaneous":
             # the new selected folder is correct
             chosen_parent_folder = new_selected_parent_folder
-        elif selected_parent_folder == "Miscellanious" and new_selected_parent_folder == "Miscellanious" and not suggest_parent_folder == "Miscellanious":
+        elif selected_parent_folder == "Miscellaneous" and new_selected_parent_folder == "Miscellaneous" and not suggested_parent_folder == "Miscellaneous":
             # the suggested folder is correct
             chosen_parent_folder = suggested_parent_folder
         else:
@@ -189,10 +189,18 @@ def main():
             print(keep_new_folder)
             if keep_new_folder == "Keep":
                 new_folder_path = os.path.join(directory, suggested_parent_folder)
-                os.makedirs(new_folder_path)
-                print(f"Folder '{suggested_parent_folder}' created on the desktop.")    
+                if not os.path.exists(new_folder_path):
+                    os.makedirs(new_folder_path)
+                    print(f"Folder '{suggested_parent_folder}' created on the desktop.")    
             else:
                 chosen_parent_folder = selected_parent_folder
+        print("real chosen parent folder:" + chosen_parent_folder)
+
+        if chosen_parent_folder == "Miscellaneous":
+            new_folder_path = os.path.join(directory, chosen_parent_folder)
+            if not os.path.exists(new_folder_path):
+                os.makedirs(new_folder_path)
+                print(f"Folder '{chosen_parent_folder}' created on the desktop.")  
 
         folders = get_folders(directory)
         print("Folders found in the directory:")
@@ -214,23 +222,46 @@ def main():
         print("suggested sub folder:" + suggested_sub_folder)
         # ask to pick a folder from list including the new one
         subfolders.append(suggested_sub_folder)
-        chosen_sub_folder = select_between_two_sub_folders(file_name, chosen_parent_folder, selected_sub_folder, suggested_sub_folder)
-        
-        if chosen_sub_folder == suggested_sub_folder and chosen_sub_folder != selected_sub_folder:
+        select_between_sub_folder = select_between_two_sub_folders(file_name, chosen_parent_folder, selected_sub_folder, suggested_sub_folder)
+        print("chosen sub folder:" + select_between_sub_folder)
+
+        if not select_between_sub_folder == "Miscellaneous":
+            # the new selected folder is correct
+            chosen_sub_folder = select_between_sub_folder
+        elif select_between_sub_folder == "Miscellaneous" and not selected_sub_folder == "Miscellaneous":
+            chosen_sub_folder = selected_sub_folder
+            # the suggested folder is correct
+        elif selected_sub_folder == "Miscellaneous" and select_between_sub_folder == "Miscellaneous" and not suggested_sub_folder == "Miscellaneous":
+            # the suggested folder is correct
+            chosen_sub_folder = suggested_sub_folder
+        else:
+            chosen_sub_folder = select_between_sub_folder
+        print("real chosen sub folder:" + chosen_sub_folder)
+
+        if chosen_sub_folder == suggested_sub_folder and not chosen_sub_folder == selected_sub_folder:
             # check if the new folder should be kept
             keep_new_folder = check_new_sub_folder(chosen_parent_folder, subfolders, suggested_sub_folder)
             print(keep_new_folder)
             if keep_new_folder == "Keep":
                 new_sub_folder_path = os.path.join(new_folder_path, suggested_sub_folder)
+                if not os.path.exists(new_sub_folder_path):
+                    os.makedirs(new_sub_folder_path)
+                    print(f"Folder '{suggested_sub_folder}' created in '{chosen_parent_folder}'.")
+            else:
+                chosen_sub_folder = selected_sub_folder
+        
+        if chosen_sub_folder == "Miscellaneous":
+            new_sub_folder_path = os.path.join(new_folder_path, chosen_parent_folder)
+            if not os.path.exists(new_sub_folder_path):
                 os.makedirs(new_sub_folder_path)
-                print(f"Folder '{suggested_sub_folder}' created in '{chosen_parent_folder}'.")
-                
+                print(f"Folder '{chosen_sub_folder}' created in '{chosen_parent_folder}'.")  
+
         new_sub_folder_path = os.path.join(new_folder_path, chosen_sub_folder)
-        move_file(file_path, new_sub_folder_path)
+        new_file_path = move_file(file_path, new_sub_folder_path)
         print(f"File '{file_name}' moved to folder '{chosen_sub_folder}'")
+
+        return new_file_path
 
     else:
         print("File not found.")
-
-if __name__ == "__main__":
-    main()
+        return file_path
